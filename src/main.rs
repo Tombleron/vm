@@ -1,8 +1,12 @@
+mod assembly;
 mod instruction;
-mod vm;
 mod repl;
+mod vm;
 
 fn main() {
-    let mut repl = repl::REPL::new();
-    repl.run();
+    let program = assembly::Program::from_file("program.asm").unwrap();
+    let mut vm = vm::Vm::new();
+    vm.program = program.to_bytes();
+    vm.run();
+    println!("{:#?}", vm);
 }

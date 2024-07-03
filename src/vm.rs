@@ -2,6 +2,7 @@ use crate::instruction::Opcode;
 
 const REGISTER_COUNT: usize = 32;
 
+#[derive(Debug)]
 pub struct Vm {
     pub registers: [i32; REGISTER_COUNT],
     pub pc: usize,
@@ -212,7 +213,7 @@ mod tests {
         vm.program = vec![
             1, 0, 1, 244, // LOAD 500 to register 0
             1, 1, 0, 250, // LOAD 250 to register 1
-            3, 0, 1, 2,   // SUB register 0 and register 1, store result in register 2
+            3, 0, 1, 2, // SUB register 0 and register 1, store result in register 2
         ];
         vm.run();
 
@@ -227,7 +228,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 2, // LOAD 2 to register 0
             1, 1, 0, 3, // LOAD 3 to register 1
-            4, 0, 1, 2  // MUL register 0 and register 1, store result in register 2
+            4, 0, 1, 2, // MUL register 0 and register 1, store result in register 2
         ];
         vm.run();
 
@@ -241,8 +242,8 @@ mod tests {
         let mut vm = Vm::new();
         vm.program = vec![
             1, 0, 0, 11, // LOAD 10 to register 0
-            1, 1, 0, 2,  // LOAD 2 to register 1
-            5, 0, 1, 2,  // DIV register 0 and register 1, store result in register 2
+            1, 1, 0, 2, // LOAD 2 to register 1
+            5, 0, 1, 2, // DIV register 0 and register 1, store result in register 2
         ];
         vm.run();
 
@@ -285,7 +286,6 @@ mod tests {
             1, 0, 0, 4, // LOAD 1 to register 0
             7, 0, // JMPF to register 0
             1, 0, 0, 1, // LOAD 1 to register 0
-
         ];
         vm.run_once();
         assert_eq!(vm.pc, 4);
@@ -299,7 +299,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            9, 0, 1,    // EQ register 0 and register 1, store result in register 2
+            9, 0, 1, // EQ register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -308,7 +308,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            9, 0, 1,    // EQ register 0 and register 1, store result in register 2
+            9, 0, 1, // EQ register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -320,7 +320,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            10, 0, 1,    // NEQ register 0 and register 1, store result in register 2
+            10, 0, 1, // NEQ register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -329,7 +329,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            10, 0, 1,    // NEQ register 0 and register 1, store result in register 2
+            10, 0, 1, // NEQ register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -341,7 +341,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 2, // LOAD 2 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            11, 0, 1,    // GT register 0 and register 1, store result in register 2
+            11, 0, 1, // GT register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -350,7 +350,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            11, 0, 1,    // GT register 0 and register 1, store result in register 2
+            11, 0, 1, // GT register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -362,7 +362,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            12, 0, 1,    // LT register 0 and register 1, store result in register 2
+            12, 0, 1, // LT register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -371,7 +371,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 2, // LOAD 2 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            12, 0, 1,    // LT register 0 and register 1, store result in register 2
+            12, 0, 1, // LT register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -383,7 +383,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 2, // LOAD 2 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            13, 0, 1,    // GTE register 0 and register 1, store result in register 2
+            13, 0, 1, // GTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -392,7 +392,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            13, 0, 1,    // GTE register 0 and register 1, store result in register 2
+            13, 0, 1, // GTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -401,7 +401,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            13, 0, 1,    // GTE register 0 and register 1, store result in register 2
+            13, 0, 1, // GTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -413,7 +413,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            14, 0, 1,    // LTE register 0 and register 1, store result in register 2
+            14, 0, 1, // LTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -422,7 +422,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 2, // LOAD 2 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            14, 0, 1,    // LTE register 0 and register 1, store result in register 2
+            14, 0, 1, // LTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -431,7 +431,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            14, 0, 1,    // LTE register 0 and register 1, store result in register 2
+            14, 0, 1, // LTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -440,25 +440,13 @@ mod tests {
     #[test]
     fn test_opcode_jeq() {
         let mut vm = Vm::new();
-        vm.program = vec![
-            1, 0, 0, 17,
-            1, 1, 0, 17,
-            9, 0, 1,
-            15, 1,
-            1, 0, 0, 2,
-        ];
+        vm.program = vec![1, 0, 0, 17, 1, 1, 0, 17, 9, 0, 1, 15, 1, 1, 0, 0, 2];
         vm.run();
         assert_eq!(vm.pc, 17);
         assert_eq!(vm.registers[0], 17);
 
         let mut vm = Vm::new();
-        vm.program = vec![
-            1, 0, 0, 17,
-            1, 1, 0, 18,
-            9, 0, 1,
-            15, 1,
-            1, 0, 0, 2,
-        ];
+        vm.program = vec![1, 0, 0, 17, 1, 1, 0, 18, 9, 0, 1, 15, 1, 1, 0, 0, 2];
         vm.run();
         assert_eq!(vm.pc, 17);
         assert_eq!(vm.registers[0], 2);
@@ -467,25 +455,13 @@ mod tests {
     #[test]
     fn test_opcode_jneq() {
         let mut vm = Vm::new();
-        vm.program = vec![
-            1, 0, 0, 17,
-            1, 1, 0, 17,
-            10, 0, 1,
-            16, 1,
-            1, 0, 0, 2,
-        ];
+        vm.program = vec![1, 0, 0, 17, 1, 1, 0, 17, 10, 0, 1, 16, 1, 1, 0, 0, 2];
         vm.run();
         assert_eq!(vm.pc, 17);
         assert_eq!(vm.registers[0], 17);
 
         let mut vm = Vm::new();
-        vm.program = vec![
-            1, 0, 0, 17,
-            1, 1, 0, 18,
-            10, 0, 1,
-            16, 1,
-            1, 0, 0, 2,
-        ];
+        vm.program = vec![1, 0, 0, 17, 1, 1, 0, 18, 10, 0, 1, 16, 1, 1, 0, 0, 2];
         vm.run();
         assert_eq!(vm.pc, 17);
         assert_eq!(vm.registers[0], 2);

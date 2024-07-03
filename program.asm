@@ -1,0 +1,8 @@
+LOAD $0 10
+LOAD $1 1
+LOAD $2 0
+LOAD $3 16
+SUB $0 $1 $3
+EQ $3 $2
+JEQ $3
+HLT
