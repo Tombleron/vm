@@ -37,6 +37,10 @@ pub enum Opcode {
     JEQ,  // JEQ [reg] - Jump to an address stored in a register if the `cmp` register is 1
     JNEQ, // JNEQ [reg] - Jump to an address stored in a register if the `cmp` register is 0
 
+    ALLOC, // ALLOC [reg] - Allocate a number of bytes on the heap
+    INC,   // INC [reg] - Increment the value in a register
+    DEC,   // DEC [reg] - Decrement the value in a register
+
     IGL, // IGL - Illegal instruction
 }
 
@@ -60,6 +64,9 @@ impl From<u8> for Opcode {
             14 => Opcode::LTQ,
             15 => Opcode::JEQ,
             16 => Opcode::JNEQ,
+            17 => Opcode::ALLOC,
+            18 => Opcode::INC,
+            19 => Opcode::DEC,
 
             _ => Opcode::IGL,
         }
@@ -86,6 +93,9 @@ impl From<Opcode> for u8 {
             Opcode::LTQ => 14,
             Opcode::JEQ => 15,
             Opcode::JNEQ => 16,
+            Opcode::ALLOC => 17,
+            Opcode::INC => 18,
+            Opcode::DEC => 19,
             Opcode::IGL => unreachable!(),
         }
     }
@@ -111,6 +121,9 @@ impl Opcode {
             Opcode::LTQ => 3,
             Opcode::JEQ => 2,
             Opcode::JNEQ => 2,
+            Opcode::ALLOC => 2,
+            Opcode::INC => 2,
+            Opcode::DEC => 2,
             Opcode::IGL => unreachable!(),
         }
     }
@@ -180,6 +193,15 @@ impl Opcode {
                 operands: vec![OperandType::Register],
             },
             Opcode::JNEQ => Operands {
+                operands: vec![OperandType::Register],
+            },
+            Opcode::ALLOC => Operands {
+                operands: vec![OperandType::Register],
+            },
+            Opcode::INC => Operands {
+                operands: vec![OperandType::Register],
+            },
+            Opcode::DEC => Operands {
                 operands: vec![OperandType::Register],
             },
             Opcode::IGL => unreachable!(),

@@ -7,6 +7,7 @@ pub struct Vm {
     pub registers: [i32; REGISTER_COUNT],
     pub pc: usize,
     pub program: Vec<u8>,
+    pub heap: Vec<u8>,
 
     pub rem: u32,
     pub cmp: u32,
@@ -18,6 +19,7 @@ impl Vm {
             registers: [0; REGISTER_COUNT],
             pc: 0,
             program: vec![],
+            heap: vec![],
             rem: 0,
             cmp: 0,
         }
@@ -121,6 +123,19 @@ impl Vm {
                 if self.cmp == 0 {
                     self.pc = target as usize;
                 }
+            }
+            Opcode::ALLOC => {
+                let size = self.registers[self.next_8_bits() as usize];
+                let new_heap_len = self.heap.len() + size as usize;
+                self.heap.resize(new_heap_len, 0);
+            }
+            Opcode::INC => {
+                let register = self.next_8_bits() as usize;
+                self.registers[register] += 1;
+            }
+            Opcode::DEC => {
+                let register = self.next_8_bits() as usize;
+                self.registers[register] -= 1;
             }
             Opcode::IGL => {
                 println!("Unrecognized opcode found! Terminating!");
@@ -465,5 +480,16 @@ mod tests {
         vm.run();
         assert_eq!(vm.pc, 17);
         assert_eq!(vm.registers[0], 2);
+    }
+
+    #[test]
+    fn test_opcode_alloc() {
+        let mut vm = Vm::new();
+        vm.program = vec![
+            1, 0, 0, 10, // LOAD 10 to register 0
+            17, 0,
+        ];
+        vm.run();
+        assert_eq!(vm.heap.len(), 10);
     }
 }

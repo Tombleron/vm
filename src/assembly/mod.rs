@@ -5,14 +5,13 @@
 //! LOAD $1 14
 //! ADD $0 $1 $3
 use crate::instruction::{Opcode, OperandType};
-use nom;
 use nom::branch::alt;
-use nom::bytes::complete::{tag, take_till, take_until};
+use nom::bytes::complete::{tag, take_until};
 use nom::character::complete::{
-    alphanumeric1, crlf, digit1, line_ending, multispace0, multispace1, newline, space1,
+    alphanumeric1, multispace0, newline, space1,
 };
 use nom::combinator::{map, map_res, value};
-use nom::multi::{many1, separated_list0};
+use nom::multi::{many1};
 use nom::sequence::{preceded, terminated};
 use nom::Parser;
 
