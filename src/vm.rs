@@ -40,104 +40,117 @@ impl Vm {
         if self.pc >= self.program.len() {
             return true;
         }
-        match self.decode_opcode() {
-            Opcode::HLT => {
+
+        let opcode = self.decode_opcode();
+
+        match opcode {
+            Opcode::Hlt => {
                 return true;
             }
-            Opcode::LOAD => {
+            Opcode::Load => {
                 let register = self.next_8_bits() as usize;
                 let number = self.next_16_bits() as i32;
                 self.registers[register] = number;
             }
-            Opcode::ADD => {
+            Opcode::Add => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.registers[self.next_8_bits() as usize] = register1 + register2;
             }
-            Opcode::SUB => {
+            Opcode::Sub => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.registers[self.next_8_bits() as usize] = register1 - register2;
             }
-            Opcode::MUL => {
+            Opcode::Mul => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.registers[self.next_8_bits() as usize] = register1 * register2;
             }
-            Opcode::DIV => {
+            Opcode::Div => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.registers[self.next_8_bits() as usize] = register1 / register2;
                 self.rem = (register1 % register2) as u32;
             }
-            Opcode::JMP => {
+            Opcode::Jmp => {
                 let target = self.registers[self.next_8_bits() as usize];
-                self.pc = target as usize;
+                self.next_16_bits();
+                self.pc = target as usize * 4;
             }
-            Opcode::JMPB => {
+            Opcode::Jmpb => {
                 let target = self.registers[self.next_8_bits() as usize];
-                self.pc -= target as usize;
+                self.next_16_bits();
+                self.pc -= target as usize * 4;
             }
-            Opcode::JMPF => {
+            Opcode::Jmpf => {
                 let target = self.registers[self.next_8_bits() as usize];
-                self.pc += target as usize;
+                self.next_16_bits();
+                self.pc += target as usize * 4;
             }
-            Opcode::EQ => {
+            Opcode::Eq => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.cmp = (register1 == register2) as u32;
+                self.next_8_bits();
             }
-            Opcode::NEQ => {
+            Opcode::Neq => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.cmp = (register1 != register2) as u32;
+                self.next_8_bits();
             }
-            Opcode::GT => {
+            Opcode::Gt => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.cmp = (register1 > register2) as u32;
+                self.next_8_bits();
             }
-            Opcode::LT => {
+            Opcode::Lt => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.cmp = (register1 < register2) as u32;
+                self.next_8_bits();
             }
-            Opcode::GTQ => {
+            Opcode::Gtq => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.cmp = (register1 >= register2) as u32;
+                self.next_8_bits();
             }
-            Opcode::LTQ => {
+            Opcode::Ltq => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.cmp = (register1 <= register2) as u32;
+                self.next_8_bits();
             }
-            Opcode::JEQ => {
+            Opcode::Jeq => {
                 let target = self.registers[self.next_8_bits() as usize];
+                self.next_16_bits();
                 if self.cmp == 1 {
-                    self.pc = target as usize;
+                    self.pc = target as usize * 4;
                 }
             }
-            Opcode::JNEQ => {
-                let target = self.registers[self.next_8_bits() as usize];
-                if self.cmp == 0 {
-                    self.pc = target as usize;
-                }
-            }
-            Opcode::ALLOC => {
+            Opcode::Alloc => {
                 let size = self.registers[self.next_8_bits() as usize];
                 let new_heap_len = self.heap.len() + size as usize;
                 self.heap.resize(new_heap_len, 0);
+                self.next_8_bits();
+                self.next_8_bits();
             }
-            Opcode::INC => {
+            Opcode::Inc => {
                 let register = self.next_8_bits() as usize;
                 self.registers[register] += 1;
+                self.next_8_bits();
+                self.next_8_bits();
             }
-            Opcode::DEC => {
+            Opcode::Dec => {
                 let register = self.next_8_bits() as usize;
                 self.registers[register] -= 1;
+                self.next_8_bits();
+                self.next_8_bits();
             }
-            Opcode::IGL => {
+            Opcode::Igl => {
                 println!("Unrecognized opcode found! Terminating!");
                 return true;
             }
@@ -272,21 +285,21 @@ mod tests {
     fn test_opcode_jmp() {
         let mut vm = Vm::new();
         vm.program = vec![
-            1, 0, 0, 1, // LOAD 5 to register 0
-            6, 0, // JMP to register 0
+            1, 0, 0, 0, // LOAD 0 to register 0
+            6, 0, 0, 0, // JMP to register 0
         ];
         vm.run_once();
-        assert_eq!(vm.registers[0], 1);
+        assert_eq!(vm.registers[0], 0);
         vm.run_once();
-        assert_eq!(vm.pc, 1);
+        assert_eq!(vm.pc, 0);
     }
 
     #[test]
     fn test_opcode_jmpb() {
         let mut vm = Vm::new();
         vm.program = vec![
-            1, 0, 0, 2, // LOAD 1 to register 0
-            8, 0, // JMPB to register 0
+            1, 0, 0, 1, // LOAD 1 to register 0
+            8, 0, 0, 0, // JMPB to register 0
         ];
         vm.run_once();
         assert_eq!(vm.pc, 4);
@@ -298,14 +311,14 @@ mod tests {
     fn test_opcode_jmpf() {
         let mut vm = Vm::new();
         vm.program = vec![
-            1, 0, 0, 4, // LOAD 1 to register 0
-            7, 0, // JMPF to register 0
+            1, 0, 0, 1, // LOAD 1 to register 0
+            7, 0, 0, 0, // JMPF to register 0
             1, 0, 0, 1, // LOAD 1 to register 0
         ];
         vm.run_once();
         assert_eq!(vm.pc, 4);
         vm.run_once();
-        assert_eq!(vm.pc, 10);
+        assert_eq!(vm.pc, 12);
     }
 
     #[test]
@@ -314,7 +327,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            9, 0, 1, // EQ register 0 and register 1, store result in register 2
+            9, 0, 1, 0, // EQ register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -323,7 +336,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            9, 0, 1, // EQ register 0 and register 1, store result in register 2
+            9, 0, 1, 0, // EQ register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -335,7 +348,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            10, 0, 1, // NEQ register 0 and register 1, store result in register 2
+            10, 0, 1, 0, // NEQ register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -344,7 +357,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            10, 0, 1, // NEQ register 0 and register 1, store result in register 2
+            10, 0, 1, 0, // NEQ register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -356,7 +369,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 2, // LOAD 2 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            11, 0, 1, // GT register 0 and register 1, store result in register 2
+            11, 0, 1, 0, // GT register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -365,7 +378,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            11, 0, 1, // GT register 0 and register 1, store result in register 2
+            11, 0, 1, 0, // GT register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -377,7 +390,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            12, 0, 1, // LT register 0 and register 1, store result in register 2
+            12, 0, 1, 0, // LT register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -386,7 +399,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 2, // LOAD 2 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            12, 0, 1, // LT register 0 and register 1, store result in register 2
+            12, 0, 1, 0, // LT register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -398,7 +411,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 2, // LOAD 2 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            13, 0, 1, // GTE register 0 and register 1, store result in register 2
+            13, 0, 1, 0, // GTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -407,7 +420,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            13, 0, 1, // GTE register 0 and register 1, store result in register 2
+            13, 0, 1, 0, // GTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -416,7 +429,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            13, 0, 1, // GTE register 0 and register 1, store result in register 2
+            13, 0, 1, 0, // GTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -428,7 +441,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 2, // LOAD 2 to register 1
-            14, 0, 1, // LTE register 0 and register 1, store result in register 2
+            14, 0, 1, 0, // LTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -437,7 +450,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 2, // LOAD 2 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            14, 0, 1, // LTE register 0 and register 1, store result in register 2
+            14, 0, 1, 0, // LTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 0);
@@ -446,7 +459,7 @@ mod tests {
         vm.program = vec![
             1, 0, 0, 1, // LOAD 1 to register 0
             1, 1, 0, 1, // LOAD 1 to register 1
-            14, 0, 1, // LTE register 0 and register 1, store result in register 2
+            14, 0, 1, 0, // LTE register 0 and register 1, store result in register 2
         ];
         vm.run();
         assert_eq!(vm.cmp, 1);
@@ -455,31 +468,31 @@ mod tests {
     #[test]
     fn test_opcode_jeq() {
         let mut vm = Vm::new();
-        vm.program = vec![1, 0, 0, 17, 1, 1, 0, 17, 9, 0, 1, 15, 1, 1, 0, 0, 2];
+        vm.program = vec![
+            1, 0, 0, 5, // LOAD 16 to register 0
+            1, 1, 0, 5, // LOAD 16 to register 1
+            9, 0, 1, 0, // EQ register 0 and register 1
+            15, 0, 0, 0, // JEQ to register 0
+            1, 0, 0, 0, // LOAD 0 to register 0, skiped
+            1, 1, 0, 0, // LOAD 0 to register 1
+        ];
         vm.run();
-        assert_eq!(vm.pc, 17);
-        assert_eq!(vm.registers[0], 17);
+        assert_eq!(vm.registers[0], 5);
+        assert_eq!(vm.registers[1], 0);
 
         let mut vm = Vm::new();
-        vm.program = vec![1, 0, 0, 17, 1, 1, 0, 18, 9, 0, 1, 15, 1, 1, 0, 0, 2];
+        vm.program = vec![
+            1, 0, 0, 5, // LOAD 16 to register 0
+            1, 1, 0, 6, // LOAD 16 to register 1
+            9, 0, 1, 0, // EQ register 0 and register 1
+            15, 0, 0, 0, // JEQ to register 0
+            1, 0, 0, 0, // LOAD 0 to register 0
+            1, 1, 0, 0, // LOAD 0 to register 1
+        ];
         vm.run();
-        assert_eq!(vm.pc, 17);
-        assert_eq!(vm.registers[0], 2);
-    }
-
-    #[test]
-    fn test_opcode_jneq() {
-        let mut vm = Vm::new();
-        vm.program = vec![1, 0, 0, 17, 1, 1, 0, 17, 10, 0, 1, 16, 1, 1, 0, 0, 2];
-        vm.run();
-        assert_eq!(vm.pc, 17);
-        assert_eq!(vm.registers[0], 17);
-
-        let mut vm = Vm::new();
-        vm.program = vec![1, 0, 0, 17, 1, 1, 0, 18, 10, 0, 1, 16, 1, 1, 0, 0, 2];
-        vm.run();
-        assert_eq!(vm.pc, 17);
-        assert_eq!(vm.registers[0], 2);
+        assert_eq!(vm.cmp, 0);
+        assert_eq!(vm.registers[0], 0);
+        assert_eq!(vm.registers[1], 0);
     }
 
     #[test]
@@ -487,7 +500,7 @@ mod tests {
         let mut vm = Vm::new();
         vm.program = vec![
             1, 0, 0, 10, // LOAD 10 to register 0
-            17, 0,
+            17, 0, 0, 0,
         ];
         vm.run();
         assert_eq!(vm.heap.len(), 10);

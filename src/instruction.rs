@@ -10,65 +10,64 @@ pub struct Operands {
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Opcode {
-    HLT,  //
-    LOAD, // LOAD [reg] [val] - Load a value into a register
+    Hlt,  //
+    Load, // LOAD [reg] [val] - Load a value into a register
     //                     `val` is a i32 value, `LOAD $0 10` converts to `01 00 00 0A`
-    ADD, // ADD [reg1] [reg2] [reg3] - Add two registers and store in a third
-    SUB, // SUB [reg1] [reg2] [reg3] - Subtract two registers and store in a third
-    MUL, // MUL [reg1] [reg2] [reg3] - Multiply two registers and store in a third
-    DIV, // DIV [reg1] [reg2] [reg3] - Divide two registers and store in a third
+    Add, // ADD [reg1] [reg2] [reg3] - Add two registers and store in a third
+    Sub, // SUB [reg1] [reg2] [reg3] - Subtract two registers and store in a third
+    Mul, // MUL [reg1] [reg2] [reg3] - Multiply two registers and store in a third
+    Div, // DIV [reg1] [reg2] [reg3] - Divide two registers and store in a third
     //                              `rem` register holds reminder
-    JMP,  // JMP [reg] - Jump to an address stored in a register
-    JMPF, // JMPF [reg] - Jump forward from the current address
-    JMPB, // JMPB [reg] - Jump backwards from the current address
+    Jmp,  // JMP [reg] - Jump to an address stored in a register
+    Jmpf, // JMPF [reg] - Jump forward from the current address
+    Jmpb, // JMPB [reg] - Jump backwards from the current address
 
-    EQ, // EQ [reg1] [reg2] - Set a register to 1 if two other registers are equal, 0 otherwise
+    Eq, // EQ [reg1] [reg2] - Set a register to 1 if two other registers are equal, 0 otherwise
     //                      `cmp` register holds the result
-    NEQ, // NEQ [reg1] [reg2] - Set a register to 1 if two other registers are not equal, 0 otherwise
+    Neq, // NEQ [reg1] [reg2] - Set a register to 1 if two other registers are not equal, 0 otherwise
     //                      `cmp` register holds the result
-    GT, // GT [reg1] [reg2] - Set a register to 1 if one register is greater than another, 0 otherwise
+    Gt, // GT [reg1] [reg2] - Set a register to 1 if one register is greater than another, 0 otherwise
     //                      `cmp` register holds the result
-    LT, // LT [reg1] [reg2] - Set a register to 1 if one register is less than another, 0 otherwise
+    Lt, // LT [reg1] [reg2] - Set a register to 1 if one register is less than another, 0 otherwise
     //                      `cmp` register holds the result
-    GTQ, // GTE [reg1] [reg2] - Set a register to 1 if one register is greater than or equal to another, 0 otherwise
+    Gtq, // GTE [reg1] [reg2] - Set a register to 1 if one register is greater than or equal to another, 0 otherwise
     //                      `cmp` register holds the result
-    LTQ, // LTE [reg1] [reg2] - Set a register to 1 if one register is less than or equal to another, 0 otherwise
+    Ltq, // LTE [reg1] [reg2] - Set a register to 1 if one register is less than or equal to another, 0 otherwise
     //                      `cmp` register holds the result
-    JEQ,  // JEQ [reg] - Jump to an address stored in a register if the `cmp` register is 1
-    JNEQ, // JNEQ [reg] - Jump to an address stored in a register if the `cmp` register is 0
+    Jeq, // JEQ [reg] - Jump to an address stored in a register if the `cmp` register is 1
 
-    ALLOC, // ALLOC [reg] - Allocate a number of bytes on the heap
-    INC,   // INC [reg] - Increment the value in a register
-    DEC,   // DEC [reg] - Decrement the value in a register
+    Alloc, // ALLOC [reg] - Allocate a number of bytes on the heap
+    Inc,   // INC [reg] - Increment the value in a register
+    Dec,   // DEC [reg] - Decrement the value in a register
 
-    IGL, // IGL - Illegal instruction
+    Igl, // IGL - Illegal instruction
 }
 
 impl From<u8> for Opcode {
     fn from(v: u8) -> Self {
         match v {
-            0 => Opcode::HLT,
-            1 => Opcode::LOAD,
-            2 => Opcode::ADD,
-            3 => Opcode::SUB,
-            4 => Opcode::MUL,
-            5 => Opcode::DIV,
-            6 => Opcode::JMP,
-            7 => Opcode::JMPF,
-            8 => Opcode::JMPB,
-            9 => Opcode::EQ,
-            10 => Opcode::NEQ,
-            11 => Opcode::GT,
-            12 => Opcode::LT,
-            13 => Opcode::GTQ,
-            14 => Opcode::LTQ,
-            15 => Opcode::JEQ,
-            16 => Opcode::JNEQ,
-            17 => Opcode::ALLOC,
-            18 => Opcode::INC,
-            19 => Opcode::DEC,
+            0 => Opcode::Hlt,
+            1 => Opcode::Load,
+            2 => Opcode::Add,
+            3 => Opcode::Sub,
+            4 => Opcode::Mul,
+            5 => Opcode::Div,
+            6 => Opcode::Jmp,
+            7 => Opcode::Jmpf,
+            8 => Opcode::Jmpb,
+            9 => Opcode::Eq,
+            10 => Opcode::Neq,
+            11 => Opcode::Gt,
+            12 => Opcode::Lt,
+            13 => Opcode::Gtq,
+            14 => Opcode::Ltq,
+            15 => Opcode::Jeq,
 
-            _ => Opcode::IGL,
+            17 => Opcode::Alloc,
+            18 => Opcode::Inc,
+            19 => Opcode::Dec,
+
+            _ => Opcode::Igl,
         }
     }
 }
@@ -76,27 +75,26 @@ impl From<u8> for Opcode {
 impl From<Opcode> for u8 {
     fn from(v: Opcode) -> Self {
         match v {
-            Opcode::HLT => 0,
-            Opcode::LOAD => 1,
-            Opcode::ADD => 2,
-            Opcode::SUB => 3,
-            Opcode::MUL => 4,
-            Opcode::DIV => 5,
-            Opcode::JMP => 6,
-            Opcode::JMPF => 7,
-            Opcode::JMPB => 8,
-            Opcode::EQ => 9,
-            Opcode::NEQ => 10,
-            Opcode::GT => 11,
-            Opcode::LT => 12,
-            Opcode::GTQ => 13,
-            Opcode::LTQ => 14,
-            Opcode::JEQ => 15,
-            Opcode::JNEQ => 16,
-            Opcode::ALLOC => 17,
-            Opcode::INC => 18,
-            Opcode::DEC => 19,
-            Opcode::IGL => unreachable!(),
+            Opcode::Hlt => 0,
+            Opcode::Load => 1,
+            Opcode::Add => 2,
+            Opcode::Sub => 3,
+            Opcode::Mul => 4,
+            Opcode::Div => 5,
+            Opcode::Jmp => 6,
+            Opcode::Jmpf => 7,
+            Opcode::Jmpb => 8,
+            Opcode::Eq => 9,
+            Opcode::Neq => 10,
+            Opcode::Gt => 11,
+            Opcode::Lt => 12,
+            Opcode::Gtq => 13,
+            Opcode::Ltq => 14,
+            Opcode::Jeq => 15,
+            Opcode::Alloc => 17,
+            Opcode::Inc => 18,
+            Opcode::Dec => 19,
+            Opcode::Igl => unreachable!(),
         }
     }
 }
@@ -104,107 +102,103 @@ impl From<Opcode> for u8 {
 impl Opcode {
     pub fn size(&self) -> usize {
         match self {
-            Opcode::HLT => 1,
-            Opcode::LOAD => 4,
-            Opcode::ADD => 4,
-            Opcode::SUB => 4,
-            Opcode::MUL => 4,
-            Opcode::DIV => 4,
-            Opcode::JMP => 2,
-            Opcode::JMPF => 2,
-            Opcode::JMPB => 2,
-            Opcode::EQ => 3,
-            Opcode::NEQ => 3,
-            Opcode::GT => 3,
-            Opcode::LT => 3,
-            Opcode::GTQ => 3,
-            Opcode::LTQ => 3,
-            Opcode::JEQ => 2,
-            Opcode::JNEQ => 2,
-            Opcode::ALLOC => 2,
-            Opcode::INC => 2,
-            Opcode::DEC => 2,
-            Opcode::IGL => unreachable!(),
+            Opcode::Hlt => 1,
+            Opcode::Load => 4,
+            Opcode::Add => 4,
+            Opcode::Sub => 4,
+            Opcode::Mul => 4,
+            Opcode::Div => 4,
+            Opcode::Jmp => 2,
+            Opcode::Jmpf => 2,
+            Opcode::Jmpb => 2,
+            Opcode::Eq => 3,
+            Opcode::Neq => 3,
+            Opcode::Gt => 3,
+            Opcode::Lt => 3,
+            Opcode::Gtq => 3,
+            Opcode::Ltq => 3,
+            Opcode::Jeq => 2,
+            Opcode::Alloc => 2,
+            Opcode::Inc => 2,
+            Opcode::Dec => 2,
+            Opcode::Igl => unreachable!(),
         }
     }
 
     pub fn operands(&self) -> Operands {
         match self {
-            Opcode::HLT => Operands { operands: vec![] },
-            Opcode::LOAD => Operands {
+            Opcode::Hlt => Operands { operands: vec![] },
+            Opcode::Load => Operands {
                 operands: vec![OperandType::Register, OperandType::Number],
             },
-            Opcode::ADD => Operands {
+            Opcode::Add => Operands {
                 operands: vec![
                     OperandType::Register,
                     OperandType::Register,
                     OperandType::Register,
                 ],
             },
-            Opcode::SUB => Operands {
+            Opcode::Sub => Operands {
                 operands: vec![
                     OperandType::Register,
                     OperandType::Register,
                     OperandType::Register,
                 ],
             },
-            Opcode::MUL => Operands {
+            Opcode::Mul => Operands {
                 operands: vec![
                     OperandType::Register,
                     OperandType::Register,
                     OperandType::Register,
                 ],
             },
-            Opcode::DIV => Operands {
+            Opcode::Div => Operands {
                 operands: vec![
                     OperandType::Register,
                     OperandType::Register,
                     OperandType::Register,
                 ],
             },
-            Opcode::JMP => Operands {
+            Opcode::Jmp => Operands {
                 operands: vec![OperandType::Register],
             },
-            Opcode::JMPF => Operands {
+            Opcode::Jmpf => Operands {
                 operands: vec![OperandType::Register],
             },
-            Opcode::JMPB => Operands {
+            Opcode::Jmpb => Operands {
                 operands: vec![OperandType::Register],
             },
-            Opcode::EQ => Operands {
+            Opcode::Eq => Operands {
                 operands: vec![OperandType::Register, OperandType::Register],
             },
-            Opcode::NEQ => Operands {
+            Opcode::Neq => Operands {
                 operands: vec![OperandType::Register, OperandType::Register],
             },
-            Opcode::GT => Operands {
+            Opcode::Gt => Operands {
                 operands: vec![OperandType::Register, OperandType::Register],
             },
-            Opcode::LT => Operands {
+            Opcode::Lt => Operands {
                 operands: vec![OperandType::Register, OperandType::Register],
             },
-            Opcode::GTQ => Operands {
+            Opcode::Gtq => Operands {
                 operands: vec![OperandType::Register, OperandType::Register],
             },
-            Opcode::LTQ => Operands {
+            Opcode::Ltq => Operands {
                 operands: vec![OperandType::Register, OperandType::Register],
             },
-            Opcode::JEQ => Operands {
+            Opcode::Jeq => Operands {
                 operands: vec![OperandType::Register],
             },
-            Opcode::JNEQ => Operands {
+            Opcode::Alloc => Operands {
                 operands: vec![OperandType::Register],
             },
-            Opcode::ALLOC => Operands {
+            Opcode::Inc => Operands {
                 operands: vec![OperandType::Register],
             },
-            Opcode::INC => Operands {
+            Opcode::Dec => Operands {
                 operands: vec![OperandType::Register],
             },
-            Opcode::DEC => Operands {
-                operands: vec![OperandType::Register],
-            },
-            Opcode::IGL => unreachable!(),
+            Opcode::Igl => unreachable!(),
         }
     }
 }
@@ -226,7 +220,7 @@ mod tests {
 
     #[test]
     fn test_create_instruction() {
-        let instruction = Instruction::new(Opcode::HLT);
-        assert_eq!(instruction.opcode, Opcode::HLT);
+        let instruction = Instruction::new(Opcode::Hlt);
+        assert_eq!(instruction.opcode, Opcode::Hlt);
     }
 }

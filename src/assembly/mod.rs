@@ -7,13 +7,10 @@
 use crate::instruction::{Opcode, OperandType};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until};
-use nom::character::complete::{
-    alphanumeric1, multispace0, newline, space1,
-};
+use nom::character::complete::{alphanumeric1, multispace0, newline, space1};
 use nom::combinator::{map, map_res, value};
-use nom::multi::{many1};
+use nom::multi::many1;
 use nom::sequence::{preceded, terminated};
-use nom::Parser;
 
 #[derive(Debug, PartialEq)]
 pub enum Token {
@@ -24,23 +21,22 @@ pub enum Token {
 
 pub fn parse_opcode(input: &str) -> nom::IResult<&str, Opcode> {
     alt((
-        value(Opcode::HLT, tag("HLT")),
-        value(Opcode::LOAD, tag("LOAD")),
-        value(Opcode::ADD, tag("ADD")),
-        value(Opcode::SUB, tag("SUB")),
-        value(Opcode::MUL, tag("MUL")),
-        value(Opcode::DIV, tag("DIV")),
-        value(Opcode::JMP, tag("JMP")),
-        value(Opcode::JMPF, tag("JMPF")),
-        value(Opcode::JMPB, tag("JMPB")),
-        value(Opcode::EQ, tag("EQ")),
-        value(Opcode::NEQ, tag("NEQ")),
-        value(Opcode::GT, tag("GT")),
-        value(Opcode::LT, tag("LT")),
-        value(Opcode::GTQ, tag("GTQ")),
-        value(Opcode::LTQ, tag("LTQ")),
-        value(Opcode::JEQ, tag("JEQ")),
-        value(Opcode::JNEQ, tag("JNEQ")),
+        value(Opcode::Hlt, tag("HLT")),
+        value(Opcode::Load, tag("LOAD")),
+        value(Opcode::Add, tag("ADD")),
+        value(Opcode::Sub, tag("SUB")),
+        value(Opcode::Mul, tag("MUL")),
+        value(Opcode::Div, tag("DIV")),
+        value(Opcode::Jmp, tag("JMP")),
+        value(Opcode::Jmpf, tag("JMPF")),
+        value(Opcode::Jmpb, tag("JMPB")),
+        value(Opcode::Eq, tag("EQ")),
+        value(Opcode::Neq, tag("NEQ")),
+        value(Opcode::Gt, tag("GT")),
+        value(Opcode::Lt, tag("LT")),
+        value(Opcode::Gtq, tag("GTQ")),
+        value(Opcode::Ltq, tag("LTQ")),
+        value(Opcode::Jeq, tag("JEQ")),
     ))(input)
 }
 
@@ -177,7 +173,7 @@ mod tests {
     #[test]
     fn test_parse_opcode() {
         let result = parse_opcode("LOAD $0 1");
-        assert_eq!(result, Ok((" $0 1", Opcode::LOAD)));
+        assert_eq!(result, Ok((" $0 1", Opcode::Load)));
     }
 
     #[test]
@@ -201,7 +197,7 @@ mod tests {
             Ok((
                 "",
                 Instruction {
-                    opcode: Opcode::LOAD,
+                    opcode: Opcode::Load,
                     operands: vec![Token::Register { reg: 0 }, Token::Number { num: 1 }]
                 }
             ))
@@ -225,11 +221,11 @@ mod tests {
                 "",
                 vec![
                     Instruction {
-                        opcode: Opcode::LOAD,
+                        opcode: Opcode::Load,
                         operands: vec![Token::Register { reg: 0 }, Token::Number { num: 1 }]
                     },
                     Instruction {
-                        opcode: Opcode::LOAD,
+                        opcode: Opcode::Load,
                         operands: vec![Token::Register { reg: 1 }, Token::Number { num: 2 }]
                     }
                 ]
